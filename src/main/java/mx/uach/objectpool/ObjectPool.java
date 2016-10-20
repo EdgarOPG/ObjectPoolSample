@@ -17,7 +17,8 @@ public abstract class ObjectPool<T> {
   private long expirationTime;
 
   //Se crean dos Hashtables: locked y unlocked, cada una de ellas almacena un
-  //Objeto Long y una key generica para recuperarlo.
+  //Objeto Long que es el inicio del ciclo de vida del objeto y una key que es
+  //Objeto que se quiere guardar
   private Hashtable<T, Long> locked, unlocked;
 
   public ObjectPool() {
@@ -41,26 +42,31 @@ public abstract class ObjectPool<T> {
     long now = System.currentTimeMillis();
     //T es de la misma clase que el objeto que implementa a ObjectPool, aqui se
     T t;
-    //Si Hashtable tiene contenido
+    //Si el Hashtable de objetos en uso tiene contenido
     if (unlocked.size() > 0) {
       //Enumeration sirve para recorrer la Hashtable, se utiliza una generica
       //porque las keys son genericas tambien.
       Enumeration<T> e = unlocked.keys();
       //Mietras la enumeracion tenga elementos
       while (e.hasMoreElements()) {
+        //t va a tomar el valor de cada elemento key
         t = e.nextElement();
+        //Si now menos el elemento con la key t es mayor al tiempo de espera 
         if ((now - unlocked.get(t)) > expirationTime) {
-          // object has expired
+          // El objeto expiro y se saca de la hastable de en uso.
           unlocked.remove(t);
           expire(t);
           t = null;
         } else {
           if (validate(t)) {
+            //Si el objeto aun tiene tiempo de vida, se valida y si pasa la 
+            //validacion se pone de la tabla de en uso y de regreso en la 
+            //de espera
             unlocked.remove(t);
             locked.put(t, now);
             return (t);
           } else {
-            // object failed validation
+            //Si el objeto falla la validacion se deshecha
             unlocked.remove(t);
             expire(t);
             t = null;
@@ -68,7 +74,7 @@ public abstract class ObjectPool<T> {
         }
       }
     }
-    // no objects available, create a new one
+    // Cuando no hay objetos disponibles se crea uno nuevo y se pone en espera.
     t = create();
     locked.put(t, now);
     return (t);
