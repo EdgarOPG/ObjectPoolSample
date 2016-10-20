@@ -10,7 +10,8 @@ import java.util.Hashtable;
 
 /**
  *
- * @author edgar
+ * @author sourcemaking
+ * https://sourcemaking.com/design_patterns/object_pool/java
  */
 
 public abstract class ObjectPool<T> {
@@ -80,6 +81,7 @@ public abstract class ObjectPool<T> {
     return (t);
   }
 
+//Devolucion de un 
   public synchronized void checkIn(T t) {
     locked.remove(t);
     unlocked.put(t, System.currentTimeMillis());

@@ -4,18 +4,21 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import mx.uach.objectpool.ObjectPool;
 
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
 /**
  *
- * @author edgar
+ * @author sourcemaking
+ * https://sourcemaking.com/design_patterns/object_pool/java
  */
+
 public class JDBCConnectionPool extends ObjectPool<Connection> {
 
+  public static void main(String[] args) {
+      JDBCConnectionPool pool= new JDBCConnectionPool("com.mysql.jdbc.Driver", 
+              "jdbc:mysql://localhost:3306/mydb?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC ",
+              "root", "1234");
+      System.out.println(pool.create());
+  }
+    
   private String dsn, usr, pwd;
 
   public JDBCConnectionPool(String driver, String dsn, String usr, String pwd) {
